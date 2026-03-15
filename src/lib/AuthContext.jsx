@@ -1,21 +1,20 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext } from 'react';
+import { getSession, logout as storeLogout } from '@/lib/authStore';
 
 const AuthContext = createContext();
 
-const DEFAULT_USER = { id: 'guest', full_name: 'Guest Engineer', email: 'guest@pitwall.app', role: 'admin' };
-
 export const AuthProvider = ({ children }) => {
-  const [user] = useState(() => {
-    const stored = localStorage.getItem('pitwall_user');
-    if (!stored) {
-      localStorage.setItem('pitwall_user', JSON.stringify(DEFAULT_USER));
-      return DEFAULT_USER;
-    }
-    return JSON.parse(stored);
-  });
+  const [user, setUser] = useState(() => getSession());
+
+  const refreshSession = () => setUser(getSession());
+
+  const logout = () => {
+    storeLogout();
+    setUser(null);
+  };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated: true, isLoadingAuth: false }}>
+    <AuthContext.Provider value={{ user, isAuthenticated: !!user, refreshSession, logout }}>
       {children}
     </AuthContext.Provider>
   );

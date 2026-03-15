@@ -1,5 +1,6 @@
-import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { Home, Trophy, Map, BarChart2, Flag, Users } from 'lucide-react';
+import { Outlet, NavLink } from 'react-router-dom';
+import { Home, Trophy, Map, BarChart2, Flag, Users, LogOut } from 'lucide-react';
+import { useAuth } from '@/lib/AuthContext';
 
 const navItems = [
   { to: '/Home', icon: Home, label: 'Home' },
@@ -10,6 +11,7 @@ const navItems = [
 ];
 
 export default function AppLayout() {
+  const { user, logout } = useAuth();
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
       {/* Top bar */}
@@ -19,6 +21,17 @@ export default function AppLayout() {
         </div>
         <span className="text-lg font-black tracking-widest text-white">PITWALL</span>
         <span className="text-lg font-black tracking-widest text-[#e10600]">STRATEGIST</span>
+        <div className="ml-auto flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-full bg-[#e10600]/20 border border-[#e10600]/40 flex items-center justify-center">
+              <span className="text-[10px] font-black text-[#e10600]">{user?.username?.[0]?.toUpperCase() ?? 'U'}</span>
+            </div>
+            <span className="text-xs font-bold text-gray-300 hidden sm:block">{user?.username}</span>
+          </div>
+          <button onClick={logout} className="text-gray-500 hover:text-[#e10600] transition-colors" title="Sign out">
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
       </header>
 
       {/* Main content */}
