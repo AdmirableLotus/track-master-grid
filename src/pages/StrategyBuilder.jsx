@@ -9,6 +9,7 @@ import TireDegradationChart from '@/components/pitwall/TireDegradationChart';
 import StrategyTimeline from '@/components/pitwall/StrategyTimeline';
 import DriverSelector from '@/components/pitwall/DriverSelector';
 import RaceTimeProjection from '@/components/pitwall/RaceTimeProjection';
+import RaceSimulation from '@/components/pitwall/RaceSimulation';
 import { CheckCircle, Lock } from 'lucide-react';
 import RaceWeather from '@/components/pitwall/RaceWeather';
 import { toast } from 'sonner';
@@ -167,6 +168,17 @@ export default function StrategyBuilder() {
           <div className="mb-5">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Predicted Tire Life</label>
             <TireDegradationChart strategy={strategy} totalLaps={selectedRace.laps} weather={effectiveWeather} driver={selectedDriver} />
+          </div>
+
+          {/* Race Simulation Engine */}
+          <div className="mb-5">
+            <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Race Simulation</label>
+            <RaceSimulation
+              strategy={strategy}
+              race={selectedRace}
+              driver={selectedDriver}
+              weather={effectiveWeather}
+            />
           </div>
 
           {selectedDriver && (
