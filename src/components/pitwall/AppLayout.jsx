@@ -27,14 +27,14 @@ export default function AppLayout() {
       </main>
 
       {/* Bottom nav */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[#111] border-t border-[#222] flex z-50">
+      <nav className="fixed bottom-0 left-0 right-0 bg-[#111] border-t border-[#333] flex z-50">
         {navItems.map(({ to, icon: Icon, label }) => (
           <NavLink
             key={to}
             to={to}
             className={({ isActive }) =>
-              `flex-1 flex flex-col items-center py-3 gap-1 text-[10px] font-semibold tracking-wider transition-colors ${
-                isActive ? 'text-[#e10600]' : 'text-gray-500 hover:text-gray-300'
+              `flex-1 flex flex-col items-center py-3 gap-1 text-[11px] font-bold tracking-wider transition-colors ${
+                isActive ? 'text-[#e10600]' : 'text-gray-400 hover:text-white'
               }`
             }
           >

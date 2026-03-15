@@ -10,6 +10,7 @@ import StrategyTimeline from '@/components/pitwall/StrategyTimeline';
 import DriverSelector from '@/components/pitwall/DriverSelector';
 import RaceTimeProjection from '@/components/pitwall/RaceTimeProjection';
 import { CheckCircle, Lock } from 'lucide-react';
+import RaceWeather from '@/components/pitwall/RaceWeather';
 import { toast } from 'sonner';
 
 export default function StrategyBuilder() {
@@ -101,6 +102,8 @@ export default function StrategyBuilder() {
   });
 
   const isLocked = existingStrategy?.submitted;
+  const [liveWeather, setLiveWeather] = useState(null);
+  const effectiveWeather = liveWeather || selectedRace?.weather_forecast || 'dry';
 
   return (
     <div className="p-4 max-w-lg mx-auto">
@@ -123,6 +126,8 @@ export default function StrategyBuilder() {
 
       {selectedRace && (
         <>
+          <RaceWeather race={selectedRace} onConditionResolved={setLiveWeather} />
+
           {isLocked && (
             <div className="bg-[#1a0a00] border border-orange-500/40 rounded-xl p-3 mb-4 flex items-center gap-2">
               <Lock className="w-4 h-4 text-orange-400" />
@@ -156,18 +161,18 @@ export default function StrategyBuilder() {
           </div>
 
           <div className="mb-5">
-            <StrategyTimeline strategy={strategy} totalLaps={selectedRace.laps} weather={selectedRace.weather_forecast} />
+            <StrategyTimeline strategy={strategy} totalLaps={selectedRace.laps} weather={effectiveWeather} />
           </div>
 
           <div className="mb-5">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Predicted Tire Life</label>
-            <TireDegradationChart strategy={strategy} totalLaps={selectedRace.laps} weather={selectedRace.weather_forecast} driver={selectedDriver} />
+            <TireDegradationChart strategy={strategy} totalLaps={selectedRace.laps} weather={effectiveWeather} driver={selectedDriver} />
           </div>
 
           {selectedDriver && (
             <div className="mb-5">
               <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Driver Impact Estimate</label>
-              <RaceTimeProjection driver={selectedDriver} strategy={strategy} totalLaps={selectedRace.laps} weather={selectedRace.weather_forecast} />
+              <RaceTimeProjection driver={selectedDriver} strategy={strategy} totalLaps={selectedRace.laps} weather={effectiveWeather} />
             </div>
           )}
 
