@@ -14,6 +14,8 @@ import TrackInfo from '@/pages/TrackInfo';
 import Admin from '@/pages/Admin';
 import Leagues from '@/pages/Leagues';
 import DriverComparison from '@/pages/DriverComparison';
+import Challenges from '@/pages/Challenges';
+import Duels from '@/pages/Duels';
 import Login from '@/pages/Login';
 import Landing from '@/pages/Landing';
 
@@ -39,6 +41,8 @@ function AppRoutes() {
         <Route path="/TrackInfo" element={<TrackInfo />} />
         <Route path="/Leagues" element={<Leagues />} />
         <Route path="/Compare" element={<DriverComparison />} />
+        <Route path="/Challenges" element={<Challenges />} />
+        <Route path="/Duels" element={<Duels />} />
       </Route>
       <Route path="/Admin" element={<Admin />} />
       <Route path="*" element={<PageNotFound />} />

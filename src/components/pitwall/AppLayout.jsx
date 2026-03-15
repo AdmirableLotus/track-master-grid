@@ -1,13 +1,14 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Trophy, Map, BarChart2, Flag, Users, LogOut, Swords } from 'lucide-react';
+import { Home, Trophy, BarChart2, Users, LogOut, Swords, Zap } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 const navItems = [
-  { to: '/Home',             icon: Home,    label: 'Home'     },
-  { to: '/StrategyBuilder',  icon: BarChart2,label: 'Strategy' },
-  { to: '/Compare',          icon: Swords,  label: 'Compare'  },
-  { to: '/Leaderboard',      icon: Trophy,  label: 'Global'   },
-  { to: '/Leagues',          icon: Users,   label: 'Leagues'  },
+  { to: '/Home',            icon: Home,     label: 'Home'       },
+  { to: '/StrategyBuilder', icon: BarChart2, label: 'Strategy'   },
+  { to: '/Challenges',      icon: Zap,      label: 'Challenges' },
+  { to: '/Duels',           icon: Swords,   label: 'Duels'      },
+  { to: '/Leaderboard',     icon: Trophy,   label: 'Standings'  },
+  { to: '/Leagues',         icon: Users,    label: 'Leagues'    },
 ];
 
 export default function AppLayout() {

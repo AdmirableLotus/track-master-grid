@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { isPast, parseISO } from 'date-fns';
+import { isPast, parseISO, differenceInHours, differenceInMinutes, differenceInSeconds } from 'date-fns';
 import TireSelector from '@/components/pitwall/TireSelector';
 import PitStopPlanner from '@/components/pitwall/PitStopPlanner';
 import TireDegradationChart from '@/components/pitwall/TireDegradationChart';
@@ -10,9 +10,34 @@ import StrategyTimeline from '@/components/pitwall/StrategyTimeline';
 import DriverSelector from '@/components/pitwall/DriverSelector';
 import RaceTimeProjection from '@/components/pitwall/RaceTimeProjection';
 import RaceSimulation from '@/components/pitwall/RaceSimulation';
-import { CheckCircle, Lock } from 'lucide-react';
+import { CheckCircle, Lock, Clock, AlertTriangle } from 'lucide-react';
 import RaceWeather from '@/components/pitwall/RaceWeather';
 import { toast } from 'sonner';
+
+// Deadline: submissions lock 2 hours before race start
+const DEADLINE_HOURS_BEFORE = 2;
+
+function useDeadlineCountdown(raceDate) {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  if (!raceDate) return { locked: false, countdown: null, urgent: false };
+  const race = parseISO(raceDate);
+  const deadline = new Date(race.getTime() - DEADLINE_HOURS_BEFORE * 3600000);
+  const locked = now >= deadline;
+  if (locked) return { locked: true, countdown: null, urgent: false };
+  const totalSecs = Math.floor((deadline - now) / 1000);
+  const h = Math.floor(totalSecs / 3600);
+  const m = Math.floor((totalSecs % 3600) / 60);
+  const s = totalSecs % 60;
+  const urgent = h < 1;
+  const countdown = h > 0
+    ? `${h}h ${String(m).padStart(2,'0')}m`
+    : `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return { locked: false, countdown, urgent };
+}
 
 export default function StrategyBuilder() {
   const { user } = useAuth();
@@ -102,7 +127,8 @@ export default function StrategyBuilder() {
     },
   });
 
-  const isLocked = existingStrategy?.submitted;
+  const { locked: deadlineLocked, countdown, urgent } = useDeadlineCountdown(selectedRace?.date);
+  const isLocked = existingStrategy?.submitted || deadlineLocked;
   const [liveWeather, setLiveWeather] = useState(null);
   const effectiveWeather = liveWeather || selectedRace?.weather_forecast || 'dry';
 
@@ -129,7 +155,34 @@ export default function StrategyBuilder() {
         <>
           <RaceWeather race={selectedRace} onConditionResolved={setLiveWeather} />
 
-          {isLocked && (
+          {/* Deadline countdown banner */}
+          {!deadlineLocked && countdown && (
+            <div className={`border rounded-xl p-3 mb-4 flex items-center gap-2 ${
+              urgent
+                ? 'bg-[#1a0500] border-[#e10600]/50'
+                : 'bg-[#1a1500] border-yellow-500/30'
+            }`}>
+              <Clock className={`w-4 h-4 shrink-0 ${urgent ? 'text-[#e10600]' : 'text-yellow-400'}`} />
+              <div className="flex-1">
+                <span className={`text-sm font-bold ${urgent ? 'text-red-300' : 'text-yellow-300'}`}>
+                  Deadline in <span className="font-black tabular-nums">{countdown}</span>
+                </span>
+                <p className={`text-xs ${urgent ? 'text-red-400/70' : 'text-yellow-400/60'}`}>
+                  Submissions lock {DEADLINE_HOURS_BEFORE}h before race start
+                </p>
+              </div>
+              {urgent && <AlertTriangle className="w-4 h-4 text-[#e10600] shrink-0" />}
+            </div>
+          )}
+
+          {deadlineLocked && !existingStrategy?.submitted && (
+            <div className="bg-[#1a0000] border border-[#e10600]/40 rounded-xl p-3 mb-4 flex items-center gap-2">
+              <Lock className="w-4 h-4 text-[#e10600]" />
+              <span className="text-red-300 text-sm font-semibold">Submission deadline passed — strategy locked.</span>
+            </div>
+          )}
+
+          {existingStrategy?.submitted && (
             <div className="bg-[#1a0a00] border border-orange-500/40 rounded-xl p-3 mb-4 flex items-center gap-2">
               <Lock className="w-4 h-4 text-orange-400" />
               <span className="text-orange-300 text-sm font-semibold">Strategy submitted — locked until race completes.</span>
