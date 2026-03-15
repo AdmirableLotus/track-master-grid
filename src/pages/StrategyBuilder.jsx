@@ -127,8 +127,9 @@ export default function StrategyBuilder() {
     },
   });
 
-  const { locked: deadlineLocked, countdown, urgent } = useDeadlineCountdown(selectedRace?.date);
-  const isLocked = existingStrategy?.submitted || deadlineLocked;
+  const raceIsUpcoming = selectedRace ? !isPast(parseISO(selectedRace.date)) : false;
+  const { locked: deadlineLocked, countdown, urgent } = useDeadlineCountdown(raceIsUpcoming ? selectedRace?.date : null);
+  const isLocked = existingStrategy?.submitted || (raceIsUpcoming && deadlineLocked);
   const [liveWeather, setLiveWeather] = useState(null);
   const effectiveWeather = liveWeather || selectedRace?.weather_forecast || 'dry';
 
