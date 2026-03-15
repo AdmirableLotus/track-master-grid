@@ -3,7 +3,7 @@ import { BarChart2, Map, Trophy, Users, Flag, Zap, ChevronRight, Timer } from 'l
 
 const FEATURES = [
   { icon: BarChart2, title: 'Strategy Builder', desc: 'Plan pit stops, tire compounds and risk levels like a real race engineer.' },
-  { icon: Timer,     title: 'Live Countdown',   desc: 'Real-time countdown to every race on the 2025 F1 calendar.' },
+  { icon: Timer,     title: 'Live Countdown',   desc: 'Real-time countdown to every race on the 2026 F1 calendar.' },
   { icon: Map,       title: 'Circuit Intel',    desc: 'Deep circuit data — DRS zones, pit loss, typical strategies.' },
   { icon: Trophy,    title: 'Global Leaderboard', desc: 'Score points for predicting the winning strategy. Climb the ranks.' },
   { icon: Users,     title: 'Private Leagues',  desc: 'Create leagues and compete head-to-head with your friends.' },
@@ -156,7 +156,7 @@ export default function LandingPage({ onSignIn, onRegister }) {
           <div className="inline-flex items-center gap-2 bg-[#e10600]/10 border border-[#e10600]/30 rounded-full px-4 py-1.5 mb-6"
             style={{ animation: heroReady ? 'fadeUp 0.6s ease forwards' : 'none', opacity: heroReady ? undefined : 0 }}>
             <div className="w-1.5 h-1.5 rounded-full bg-[#e10600] animate-pulse" />
-            <span className="text-[10px] font-black text-[#e10600] tracking-[0.3em]">2025 F1 SEASON LIVE</span>
+            <span className="text-[10px] font-black text-[#e10600] tracking-[0.3em]">2026 F1 SEASON LIVE</span>
           </div>
 
           {/* Main title */}
