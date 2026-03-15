@@ -21,9 +21,30 @@ const WMO_LABEL = {
   95: 'Thunderstorm', 96: 'Thunderstorm w/ hail', 99: 'Heavy thunderstorm',
 };
 
+const DAILY_PARAMS = 'weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum,windspeed_10m_max';
+const FORECAST_PARAMS = 'weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max';
+
 export async function fetchRaceWeather(lat, lon, date) {
-  // Fetch hourly forecast for the race date (14:00 local = typical race time)
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_probability_max,windspeed_10m_max&timezone=auto&start_date=${date}&end_date=${date}`;
+  const raceDate = new Date(date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const futureCutoff = new Date(today);
+  futureCutoff.setDate(today.getDate() + 15);
+
+  let url;
+  let isPast = false;
+
+  if (raceDate < today) {
+    // Past race — use historical API
+    isPast = true;
+    url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&daily=${DAILY_PARAMS}&timezone=auto&start_date=${date}&end_date=${date}`;
+  } else if (raceDate <= futureCutoff) {
+    // Within forecast window — use forecast API
+    url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=${FORECAST_PARAMS}&timezone=auto&start_date=${date}&end_date=${date}`;
+  } else {
+    // Too far in future — return null so component shows nothing
+    return null;
+  }
 
   const res = await fetch(url);
   if (!res.ok) throw new Error('Weather fetch failed');
@@ -32,13 +53,19 @@ export async function fetchRaceWeather(lat, lon, date) {
   const d = json.daily;
   const wmo = d.weathercode[0];
 
+  // Historical API returns precipitation_sum instead of precipitation_probability_max
+  const rainChance = isPast
+    ? Math.min(Math.round((d.precipitation_sum?.[0] ?? 0) * 10), 100)
+    : (d.precipitation_probability_max?.[0] ?? 0);
+
   return {
     condition: WMO_TO_CONDITION[wmo] ?? 'dry',
     label: WMO_LABEL[wmo] ?? 'Unknown',
     tempMax: Math.round(d.temperature_2m_max[0]),
     tempMin: Math.round(d.temperature_2m_min[0]),
-    rainChance: d.precipitation_probability_max[0],
+    rainChance,
     windSpeed: Math.round(d.windspeed_10m_max[0]),
+    isPast,
     wmo,
   };
 }

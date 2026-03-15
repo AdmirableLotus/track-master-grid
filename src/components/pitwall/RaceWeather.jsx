@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchRaceWeather } from '@/api/weatherApi';
-import { Thermometer, Wind, Droplets, CloudLightning } from 'lucide-react';
+import { Thermometer, Wind, Droplets } from 'lucide-react';
 
 const CONDITION_STYLE = {
   dry:     { icon: '☀️', color: '#ffd700', bg: '#ffd70015', label: 'Dry' },
@@ -14,30 +14,33 @@ export default function RaceWeather({ race, onConditionResolved }) {
     queryKey: ['weather', race.id],
     queryFn: () => fetchRaceWeather(race.lat, race.lon, race.date),
     enabled: !!race.lat && !!race.lon,
-    staleTime: 1000 * 60 * 30, // cache 30 min
-    onSuccess: (d) => onConditionResolved?.(d.condition),
+    staleTime: 1000 * 60 * 30,
+    onSuccess: (d) => d && onConditionResolved?.(d.condition),
   });
 
   if (!race.lat || !race.lon) return null;
-
-  const style = CONDITION_STYLE[data?.condition ?? 'unknown'];
 
   if (isLoading) {
     return (
       <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3 mb-5 flex items-center gap-2">
         <div className="w-4 h-4 border-2 border-[#e10600] border-t-transparent rounded-full animate-spin" />
-        <span className="text-xs text-gray-400">Fetching race day forecast…</span>
+        <span className="text-xs text-gray-400">Fetching race day weather…</span>
       </div>
     );
   }
 
-  if (isError || !data) {
+  if (isError) {
     return (
       <div className="rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] p-3 mb-5">
-        <span className="text-xs text-gray-500">⚠️ Weather forecast unavailable</span>
+        <span className="text-xs text-gray-500">⚠️ Weather data unavailable</span>
       </div>
     );
   }
+
+  // null = too far in future, skip silently
+  if (!data) return null;
+
+  const style = CONDITION_STYLE[data.condition ?? 'unknown'];
 
   return (
     <div className="rounded-xl border mb-5 p-4" style={{ borderColor: style.color + '40', background: style.bg }}>
@@ -46,7 +49,7 @@ export default function RaceWeather({ race, onConditionResolved }) {
           <span className="text-xl">{style.icon}</span>
           <div>
             <p className="text-xs font-black tracking-widest uppercase" style={{ color: style.color }}>
-              Race Day Forecast
+              {data.isPast ? 'Race Day Weather (Historical)' : 'Race Day Forecast'}
             </p>
             <p className="text-white font-bold text-sm">{data.label}</p>
           </div>
