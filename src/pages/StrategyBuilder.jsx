@@ -9,11 +9,12 @@ import TireDegradationChart from '@/components/pitwall/TireDegradationChart';
 import StrategyTimeline from '@/components/pitwall/StrategyTimeline';
 import DriverSelector from '@/components/pitwall/DriverSelector';
 import RaceTimeProjection from '@/components/pitwall/RaceTimeProjection';
-import { CheckCircle, Lock, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Lock } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function StrategyBuilder() {
   const { user } = useAuth();
+  const qc = useQueryClient();
   const [selectedRaceId, setSelectedRaceId] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [strategy, setStrategy] = useState({
@@ -23,6 +24,28 @@ export default function StrategyBuilder() {
     pit_stop_3_lap: null, pit_stop_3_tire: null,
     safety_car_response: 'none',
     risk_level: 'moderate',
+  });
+
+  const { data: races = [] } = useQuery({
+    queryKey: ['races'],
+    queryFn: () => base44.entities.Race.list('-date', 30),
+  });
+
+  const upcomingRaces = races
+    .filter(r => !isPast(parseISO(r.date)))
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const displayRaces = upcomingRaces.length > 0
+    ? upcomingRaces
+    : [...races].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  const selectedRace = races.find(r => r.id === selectedRaceId) || displayRaces[0];
+
+  const { data: existingStrategy } = useQuery({
+    queryKey: ['strategy', selectedRace?.id, user?.id],
+    queryFn: () => base44.entities.Strategy.filter({ race_id: selectedRace.id, user_id: user.id }),
+    enabled: !!selectedRace && !!user,
+    select: d => d[0],
   });
 
   useEffect(() => {
@@ -50,9 +73,7 @@ export default function StrategyBuilder() {
         username: user.full_name || user.email,
         submitted: true,
       };
-      if (existingStrategy) {
-        return base44.entities.Strategy.update(existingStrategy.id, data);
-      }
+      if (existingStrategy) return base44.entities.Strategy.update(existingStrategy.id, data);
       return base44.entities.Strategy.create(data);
     },
     onSuccess: () => {
@@ -86,7 +107,6 @@ export default function StrategyBuilder() {
       <h1 className="text-xl font-black text-white mb-1">Strategy Builder</h1>
       <p className="text-gray-400 text-sm mb-4">Think like a race engineer.</p>
 
-      {/* Race Selector */}
       <div className="mb-5">
         <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-2">Select Race</label>
         <select
@@ -97,7 +117,7 @@ export default function StrategyBuilder() {
           {displayRaces.map(r => (
             <option key={r.id} value={r.id}>{r.name} — {new Date(r.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</option>
           ))}
-          {displayRaces.length === 0 && <option disabled>No races found</option>}
+          {displayRaces.length === 0 && <option disabled>No races found — add races in Admin</option>}
         </select>
       </div>
 
@@ -110,13 +130,11 @@ export default function StrategyBuilder() {
             </div>
           )}
 
-          {/* Driver Selector */}
           <div className="mb-5">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Assign Driver</label>
             <DriverSelector value={selectedDriver} onChange={setSelectedDriver} />
           </div>
 
-          {/* Starting Tire */}
           <div className="mb-5">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Starting Compound</label>
             <TireSelector
@@ -126,7 +144,6 @@ export default function StrategyBuilder() {
             />
           </div>
 
-          {/* Pit Stop Planner */}
           <div className="mb-5">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Pit Stop Plan</label>
             <PitStopPlanner
@@ -138,18 +155,15 @@ export default function StrategyBuilder() {
             />
           </div>
 
-          {/* Strategy Timeline */}
           <div className="mb-5">
             <StrategyTimeline strategy={strategy} totalLaps={selectedRace.laps} weather={selectedRace.weather_forecast} />
           </div>
 
-          {/* Tire Degradation Chart */}
           <div className="mb-5">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Predicted Tire Life</label>
             <TireDegradationChart strategy={strategy} totalLaps={selectedRace.laps} weather={selectedRace.weather_forecast} driver={selectedDriver} />
           </div>
 
-          {/* Driver Race Time Impact */}
           {selectedDriver && (
             <div className="mb-5">
               <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Driver Impact Estimate</label>
@@ -157,7 +171,6 @@ export default function StrategyBuilder() {
             </div>
           )}
 
-          {/* Safety Car */}
           <div className="mb-5">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Safety Car Response</label>
             <div className="flex gap-2">
@@ -178,7 +191,6 @@ export default function StrategyBuilder() {
             </div>
           </div>
 
-          {/* Risk Level */}
           <div className="mb-6">
             <label className="text-xs text-gray-400 font-bold tracking-widest uppercase block mb-3">Risk Level</label>
             <div className="flex gap-2">

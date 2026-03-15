@@ -1,7 +1,18 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
 import { ChevronDown, X, User } from 'lucide-react';
+
+const DRIVERS = [
+  { id: '1', name: 'Max Verstappen', number: 1, team: 'Red Bull Racing', team_color: '#3671C6', tire_management: 9, overtaking_ability: 9, wet_weather: 9, consistency: 10 },
+  { id: '2', name: 'Sergio Perez', number: 11, team: 'Red Bull Racing', team_color: '#3671C6', tire_management: 8, overtaking_ability: 7, wet_weather: 7, consistency: 7 },
+  { id: '3', name: 'Lewis Hamilton', number: 44, team: 'Ferrari', team_color: '#E8002D', tire_management: 9, overtaking_ability: 9, wet_weather: 10, consistency: 9 },
+  { id: '4', name: 'Charles Leclerc', number: 16, team: 'Ferrari', team_color: '#E8002D', tire_management: 7, overtaking_ability: 8, wet_weather: 8, consistency: 8 },
+  { id: '5', name: 'Lando Norris', number: 4, team: 'McLaren', team_color: '#FF8000', tire_management: 8, overtaking_ability: 8, wet_weather: 8, consistency: 8 },
+  { id: '6', name: 'Oscar Piastri', number: 81, team: 'McLaren', team_color: '#FF8000', tire_management: 7, overtaking_ability: 7, wet_weather: 7, consistency: 8 },
+  { id: '7', name: 'George Russell', number: 63, team: 'Mercedes', team_color: '#27F4D2', tire_management: 8, overtaking_ability: 8, wet_weather: 8, consistency: 9 },
+  { id: '8', name: 'Andrea Kimi Antonelli', number: 12, team: 'Mercedes', team_color: '#27F4D2', tire_management: 6, overtaking_ability: 7, wet_weather: 6, consistency: 7 },
+  { id: '9', name: 'Fernando Alonso', number: 14, team: 'Aston Martin', team_color: '#229971', tire_management: 10, overtaking_ability: 9, wet_weather: 9, consistency: 9 },
+  { id: '10', name: 'Lance Stroll', number: 18, team: 'Aston Martin', team_color: '#229971', tire_management: 6, overtaking_ability: 6, wet_weather: 6, consistency: 6 },
+];
 
 const STATS = [
   { key: 'tire_management', label: 'Tire Mgmt' },
@@ -23,12 +34,6 @@ function StatBar({ value = 5, color }) {
 
 export default function DriverSelector({ value, onChange }) {
   const [open, setOpen] = useState(false);
-
-  const { data: drivers = [] } = useQuery({
-    queryKey: ['drivers'],
-    queryFn: () => base44.entities.Driver.list('name', 30),
-  });
-
   const color = value?.team_color || '#e10600';
 
   return (
@@ -40,7 +45,7 @@ export default function DriverSelector({ value, onChange }) {
         {value ? (
           <>
             <div className="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm shrink-0" style={{ background: color + '25', border: `2px solid ${color}`, color }}>
-              {value.number || '#'}
+              {value.number}
             </div>
             <div className="flex-1 text-left">
               <p className="text-white font-black text-sm">{value.name}</p>
@@ -58,7 +63,6 @@ export default function DriverSelector({ value, onChange }) {
         <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
-      {/* Selected driver stat bars */}
       {value && !open && (
         <div className="mt-2 bg-[#111] rounded-xl p-3 border border-[#222] grid grid-cols-2 gap-x-5 gap-y-2">
           {STATS.map(({ key, label }) => (
@@ -70,7 +74,6 @@ export default function DriverSelector({ value, onChange }) {
         </div>
       )}
 
-      {/* Dropdown */}
       {open && (
         <div className="mt-2 bg-[#111] border border-[#333] rounded-xl overflow-hidden max-h-64 overflow-y-auto z-10 relative">
           <button
@@ -82,8 +85,8 @@ export default function DriverSelector({ value, onChange }) {
             </div>
             <span className="text-gray-400 text-sm">No driver — average pace</span>
           </button>
-          {drivers.map(driver => {
-            const c = driver.team_color || '#e10600';
+          {DRIVERS.map(driver => {
+            const c = driver.team_color;
             return (
               <button
                 key={driver.id}
@@ -91,7 +94,7 @@ export default function DriverSelector({ value, onChange }) {
                 className={`w-full flex items-center gap-3 px-4 py-3 hover:bg-[#1a1a1a] transition-colors border-b border-[#1a1a1a] ${value?.id === driver.id ? 'bg-[#1a1a1a]' : ''}`}
               >
                 <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shrink-0" style={{ background: c + '25', border: `2px solid ${c}`, color: c }}>
-                  {driver.number || '?'}
+                  {driver.number}
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-white text-sm font-bold">{driver.name}</p>
@@ -104,9 +107,6 @@ export default function DriverSelector({ value, onChange }) {
               </button>
             );
           })}
-          {drivers.length === 0 && (
-            <p className="text-gray-500 text-xs text-center py-6">No drivers added yet.</p>
-          )}
         </div>
       )}
     </div>
