@@ -85,16 +85,16 @@ export default function TrackInfo() {
             onClick={() => setSelectedId(r.id)}
             className="w-full bg-[#1a1a1a] border border-[#2a2a2a] hover:border-[#e10600]/40 rounded-xl p-4 flex items-center gap-4 text-left transition-colors"
           >
-            <div className="text-2xl">{r.flag_emoji || '🏁'}</div>
-            <div className="flex-1">
-              <p className="font-bold text-white text-sm">{r.circuit}</p>
-              <p className="text-xs text-gray-400">{r.name} · Rd {r.round}</p>
+            <div className="w-8 text-center text-2xl shrink-0">{r.flag_emoji || '🏁'}</div>
+            <div className="flex-1 min-w-0">
+              <p className="font-bold text-white text-sm truncate">{r.circuit}</p>
+              <p className="text-xs text-gray-400 truncate">{r.name} · Rd {r.round}</p>
             </div>
-            <div className="text-right mr-2">
-              <p className="text-xs text-gray-400">{r.laps} laps</p>
-              {r.drs_zones && <p className="text-xs text-[#e10600]">{r.drs_zones} DRS</p>}
+            <div className="text-right shrink-0 w-16">
+              <p className="text-xs text-gray-400">{r.laps ?? '—'} laps</p>
+              <p className="text-xs text-[#e10600]">{r.drs_zones ?? '—'} DRS</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <ChevronRight className="w-4 h-4 text-gray-600 shrink-0" />
           </button>
         ))}
       </div>

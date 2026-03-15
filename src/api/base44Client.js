@@ -45,11 +45,14 @@ function store(key) {
 
 export const db = {
   entities: {
-    Race:      store('pitwall_races'),
-    Strategy:  store('pitwall_strategies'),
-    League:    store('pitwall_leagues'),
-    Challenge: store('pitwall_challenges'),
-    Duel:      store('pitwall_duels'),
+    Race:        store('pitwall_races'),
+    Strategy:    store('pitwall_strategies'),
+    League:      store('pitwall_leagues'),
+    Challenge:   store('pitwall_challenges'),
+    Duel:        store('pitwall_duels'),
+    Profile:     store('pitwall_profiles'),
+    BanterPost:  store('pitwall_banter'),
+    ProStrategy: store('pitwall_pro_strategies'),
   },
 };
 
