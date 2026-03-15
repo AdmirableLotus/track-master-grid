@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import { Clock, CloudSun, Layers, BarChart2, Map, Trophy, ChevronRight, Flag } from 'lucide-react';
@@ -33,8 +34,7 @@ function Countdown({ dateStr }) {
 }
 
 export default function Home() {
-  const [user, setUser] = useState(null);
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+  const { user } = useAuth();
 
   const { data: races = [] } = useQuery({
     queryKey: ['races'],

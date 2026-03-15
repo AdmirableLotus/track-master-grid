@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { isPast, parseISO } from 'date-fns';
 import TireSelector from '@/components/pitwall/TireSelector';
@@ -12,7 +13,7 @@ import { CheckCircle, Lock, AlertTriangle } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function StrategyBuilder() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [selectedRaceId, setSelectedRaceId] = useState(null);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [strategy, setStrategy] = useState({
@@ -22,31 +23,6 @@ export default function StrategyBuilder() {
     pit_stop_3_lap: null, pit_stop_3_tire: null,
     safety_car_response: 'none',
     risk_level: 'moderate',
-  });
-
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
-  const qc = useQueryClient();
-
-  const { data: races = [] } = useQuery({
-    queryKey: ['races'],
-    queryFn: () => base44.entities.Race.list('-date', 30),
-  });
-
-  const upcomingRaces = races
-    .filter(r => !isPast(parseISO(r.date)))
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
-
-  const displayRaces = upcomingRaces.length > 0
-    ? upcomingRaces
-    : [...races].sort((a, b) => new Date(b.date) - new Date(a.date));
-
-  const selectedRace = races.find(r => r.id === selectedRaceId) || displayRaces[0];
-
-  const { data: existingStrategy } = useQuery({
-    queryKey: ['strategy', selectedRace?.id, user?.id],
-    queryFn: () => base44.entities.Strategy.filter({ race_id: selectedRace.id, user_id: user.id }),
-    enabled: !!selectedRace && !!user,
-    select: d => d[0],
   });
 
   useEffect(() => {
