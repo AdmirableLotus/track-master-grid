@@ -2,6 +2,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { useState } from 'react';
 import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import AppLayout from '@/components/pitwall/AppLayout';
@@ -13,16 +14,34 @@ import TrackInfo from '@/pages/TrackInfo';
 import Admin from '@/pages/Admin';
 import Leagues from '@/pages/Leagues';
 import Login from '@/pages/Login';
+import Landing from '@/pages/Landing';
+
+// 'landing' | 'login' | 'register'
+function UnauthFlow() {
+  const [screen, setScreen] = useState('landing');
+
+  if (screen === 'landing') {
+    return (
+      <Landing
+        onSignIn={() => setScreen('login')}
+        onRegister={() => setScreen('register')}
+      />
+    );
+  }
+
+  return (
+    <Login
+      initialMode={screen === 'register' ? 'register' : 'login'}
+      onBack={() => setScreen('landing')}
+    />
+  );
+}
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
 
   if (!isAuthenticated) {
-    return (
-      <Routes>
-        <Route path="*" element={<Login />} />
-      </Routes>
-    );
+    return <UnauthFlow />;
   }
 
   return (

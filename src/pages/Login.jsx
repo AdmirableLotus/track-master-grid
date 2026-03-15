@@ -3,9 +3,9 @@ import { useAuth } from '@/lib/AuthContext';
 import { register, login } from '@/lib/authStore';
 import { Flag, Eye, EyeOff, Zap } from 'lucide-react';
 
-export default function LoginPage() {
+export default function LoginPage({ initialMode = 'login', onBack }) {
   const { refreshSession } = useAuth();
-  const [mode, setMode] = useState('login'); // 'login' | 'register'
+  const [mode, setMode] = useState(initialMode);
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');
@@ -46,6 +46,13 @@ export default function LoginPage() {
 
       {/* Top bar */}
       <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#e10600] to-transparent" />
+
+      {/* Back to landing */}
+      {onBack && (
+        <button onClick={onBack} className="absolute top-4 left-4 text-gray-500 hover:text-white text-xs font-black tracking-widest flex items-center gap-1 transition-colors">
+          ← BACK
+        </button>
+      )}
 
       {/* Logo */}
       <div className="flex items-center gap-3 mb-8">
