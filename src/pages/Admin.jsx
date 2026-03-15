@@ -1,17 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
 import AdminRaces from '@/components/admin/AdminRaces';
 import AdminResults from '@/components/admin/AdminResults';
-import { Shield, Flag, Trophy, ChevronRight } from 'lucide-react';
+import { Shield, Flag, Trophy } from 'lucide-react';
 
 export default function Admin() {
-  const [user, setUser] = useState(null);
-  const [tab, setTab] = useState('races');
-
   const { user } = useAuth();
-  useEffect(() => { setUser(user); }, [user]);
+  const [tab, setTab] = useState('races');
 
   if (user && user.role !== 'admin') {
     return (
