@@ -13,37 +13,21 @@ import Leaderboard from '@/pages/Leaderboard';
 import TrackInfo from '@/pages/TrackInfo';
 import Admin from '@/pages/Admin';
 import Leagues from '@/pages/Leagues';
+import DriverComparison from '@/pages/DriverComparison';
 import Login from '@/pages/Login';
 import Landing from '@/pages/Landing';
 
-// 'landing' | 'login' | 'register'
 function UnauthFlow() {
   const [screen, setScreen] = useState('landing');
-
   if (screen === 'landing') {
-    return (
-      <Landing
-        onSignIn={() => setScreen('login')}
-        onRegister={() => setScreen('register')}
-      />
-    );
+    return <Landing onSignIn={() => setScreen('login')} onRegister={() => setScreen('register')} />;
   }
-
-  return (
-    <Login
-      initialMode={screen === 'register' ? 'register' : 'login'}
-      onBack={() => setScreen('landing')}
-    />
-  );
+  return <Login initialMode={screen === 'register' ? 'register' : 'login'} onBack={() => setScreen('landing')} />;
 }
 
 function AppRoutes() {
   const { isAuthenticated } = useAuth();
-
-  if (!isAuthenticated) {
-    return <UnauthFlow />;
-  }
-
+  if (!isAuthenticated) return <UnauthFlow />;
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/Home" replace />} />
@@ -54,6 +38,7 @@ function AppRoutes() {
         <Route path="/Leaderboard" element={<Leaderboard />} />
         <Route path="/TrackInfo" element={<TrackInfo />} />
         <Route path="/Leagues" element={<Leagues />} />
+        <Route path="/Compare" element={<DriverComparison />} />
       </Route>
       <Route path="/Admin" element={<Admin />} />
       <Route path="*" element={<PageNotFound />} />
