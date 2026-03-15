@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Trophy, Medal, Star, Crown } from 'lucide-react';
 
@@ -14,7 +14,7 @@ export default function Leaderboard() {
 
   const { data: strategies = [] } = useQuery({
     queryKey: ['all-strategies'],
-    queryFn: () => base44.entities.Strategy.filter({ submitted: true }),
+    queryFn: () => db.entities.Strategy.filter({ submitted: true }),
   });
 
   // Aggregate scores per user

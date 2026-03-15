@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Trophy, Plus, Users, Copy, Check, LogIn, Crown, Star, ArrowLeft, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -110,22 +111,20 @@ function LeagueCard({ league, currentUser, strategies, onDelete }) {
 }
 
 export default function Leagues() {
-  const [user, setUser] = useState(null);
+  const { user } = useAuth();
   const [tab, setTab] = useState('my');
   const [newName, setNewName] = useState('');
   const [joinCode, setJoinCode] = useState('');
   const qc = useQueryClient();
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
-
   const { data: allLeagues = [] } = useQuery({
     queryKey: ['leagues'],
-    queryFn: () => base44.entities.League.list('-created_date', 200),
+    queryFn: () => db.entities.League.list('-created_date', 200),
   });
 
   const { data: strategies = [] } = useQuery({
     queryKey: ['all-strategies'],
-    queryFn: () => base44.entities.Strategy.filter({ submitted: true }),
+    queryFn: () => db.entities.Strategy.filter({ submitted: true }),
   });
 
   const myLeagues = allLeagues.filter(l =>
@@ -136,7 +135,7 @@ export default function Leagues() {
     mutationFn: async () => {
       if (!newName.trim()) throw new Error('Enter a league name');
       const code = generateCode();
-      return base44.entities.League.create({
+      return db.entities.League.create({
         name: newName.trim(),
         invite_code: code,
         creator_id: user.id,
@@ -160,7 +159,7 @@ export default function Leagues() {
       const league = allLeagues.find(l => l.invite_code === code);
       if (!league) throw new Error('League not found. Check the code and try again.');
       if (league.member_ids?.includes(user.id)) throw new Error('You\'re already in this league!');
-      return base44.entities.League.update(league.id, {
+      return db.entities.League.update(league.id, {
         member_ids: [...(league.member_ids || []), user.id],
         member_usernames: [...(league.member_usernames || []), user.full_name || user.email],
       });
@@ -175,14 +174,14 @@ export default function Leagues() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (league) => base44.entities.League.delete(league.id),
+    mutationFn: (league) => db.entities.League.delete(league.id),
     onSuccess: () => {
       toast.success('League deleted');
       qc.invalidateQueries(['leagues']);
     },
   });
 
-  if (!user) return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  if (!user) return null;
 
   return (
     <div className="p-4 max-w-lg mx-auto">

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { isPast, parseISO } from 'date-fns';
 import { Trophy, Flag, CheckCircle, XCircle, Minus } from 'lucide-react';
@@ -60,23 +61,22 @@ function calcScore(strategy, actual) {
 }
 
 export default function Results() {
-  const [user, setUser] = useState(null);
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+  const { user } = useAuth();
 
   const { data: races = [] } = useQuery({
     queryKey: ['races'],
-    queryFn: () => base44.entities.Race.list('-date', 30),
+    queryFn: () => db.entities.Race.list('-date', 30),
   });
 
   const completedRaces = races.filter(r => r.actual_results?.race_completed);
 
   const { data: strategies = [] } = useQuery({
     queryKey: ['my-strategies', user?.id],
-    queryFn: () => base44.entities.Strategy.filter({ user_id: user.id }),
+    queryFn: () => db.entities.Strategy.filter({ user_id: user.id }),
     enabled: !!user,
   });
 
-  if (!user) return <div className="p-8 text-center text-gray-500">Loading...</div>;
+  if (!user) return null;
 
   return (
     <div className="p-4 max-w-lg mx-auto">

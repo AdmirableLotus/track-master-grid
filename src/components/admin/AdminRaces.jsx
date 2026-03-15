@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Plus, Trash2, Pencil, ChevronDown, ChevronUp, Save, X } from 'lucide-react';
@@ -96,21 +96,21 @@ export default function AdminRaces() {
 
   const { data: races = [] } = useQuery({
     queryKey: ['races'],
-    queryFn: () => base44.entities.Race.list('round', 50),
+    queryFn: () => db.entities.Race.list('round', 50),
   });
 
   const createMutation = useMutation({
-    mutationFn: d => base44.entities.Race.create({ ...d, laps: Number(d.laps), lap_length_km: Number(d.lap_length_km), pit_lane_time_loss: Number(d.pit_lane_time_loss), round: Number(d.round), drs_zones: Number(d.drs_zones) }),
+    mutationFn: d => db.entities.Race.create({ ...d, laps: Number(d.laps), lap_length_km: Number(d.lap_length_km), pit_lane_time_loss: Number(d.pit_lane_time_loss), round: Number(d.round), drs_zones: Number(d.drs_zones) }),
     onSuccess: () => { toast.success('Race added!'); setShowForm(false); qc.invalidateQueries(['races']); },
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }) => base44.entities.Race.update(id, { ...data, laps: Number(data.laps), lap_length_km: Number(data.lap_length_km), pit_lane_time_loss: Number(data.pit_lane_time_loss), round: Number(data.round), drs_zones: Number(data.drs_zones) }),
+    mutationFn: ({ id, data }) => db.entities.Race.update(id, { ...data, laps: Number(data.laps), lap_length_km: Number(data.lap_length_km), pit_lane_time_loss: Number(data.pit_lane_time_loss), round: Number(data.round), drs_zones: Number(data.drs_zones) }),
     onSuccess: () => { toast.success('Race updated!'); setEditingRace(null); qc.invalidateQueries(['races']); },
   });
 
   const deleteMutation = useMutation({
-    mutationFn: id => base44.entities.Race.delete(id),
+    mutationFn: id => db.entities.Race.delete(id),
     onSuccess: () => { toast.success('Race deleted'); qc.invalidateQueries(['races']); },
   });
 

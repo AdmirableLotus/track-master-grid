@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Save, CheckCircle } from 'lucide-react';
@@ -17,7 +17,7 @@ export default function AdminResults() {
 
   const { data: races = [] } = useQuery({
     queryKey: ['races'],
-    queryFn: () => base44.entities.Race.list('round', 50),
+    queryFn: () => db.entities.Race.list('round', 50),
   });
 
   const selectedRace = races.find(r => r.id === selectedRaceId);
@@ -55,7 +55,7 @@ export default function AdminResults() {
         had_safety_car: results.had_safety_car,
         race_completed: results.race_completed,
       };
-      return base44.entities.Race.update(selectedRaceId, { actual_results });
+      return db.entities.Race.update(selectedRaceId, { actual_results });
     },
     onSuccess: () => {
       toast.success('Results saved! Strategies will now be scored.');

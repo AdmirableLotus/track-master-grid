@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { isPast, parseISO } from 'date-fns';
@@ -29,7 +29,7 @@ export default function StrategyBuilder() {
 
   const { data: races = [] } = useQuery({
     queryKey: ['races'],
-    queryFn: () => base44.entities.Race.list('-date', 30),
+    queryFn: () => db.entities.Race.list('-date', 30),
   });
 
   const upcomingRaces = races
@@ -44,7 +44,7 @@ export default function StrategyBuilder() {
 
   const { data: existingStrategy } = useQuery({
     queryKey: ['strategy', selectedRace?.id, user?.id],
-    queryFn: () => base44.entities.Strategy.filter({ race_id: selectedRace.id, user_id: user.id }),
+    queryFn: () => db.entities.Strategy.filter({ race_id: selectedRace.id, user_id: user.id }),
     enabled: !!selectedRace && !!user,
     select: d => d[0],
   });
@@ -74,8 +74,8 @@ export default function StrategyBuilder() {
         username: user.full_name || user.email,
         submitted: true,
       };
-      if (existingStrategy) return base44.entities.Strategy.update(existingStrategy.id, data);
-      return base44.entities.Strategy.create(data);
+      if (existingStrategy) return db.entities.Strategy.update(existingStrategy.id, data);
+      return db.entities.Strategy.create(data);
     },
     onSuccess: () => {
       toast.success('Strategy submitted! 🏁');
@@ -92,8 +92,8 @@ export default function StrategyBuilder() {
         username: user.full_name || user.email,
         submitted: false,
       };
-      if (existingStrategy) return base44.entities.Strategy.update(existingStrategy.id, data);
-      return base44.entities.Strategy.create(data);
+      if (existingStrategy) return db.entities.Strategy.update(existingStrategy.id, data);
+      return db.entities.Strategy.create(data);
     },
     onSuccess: () => {
       toast.success('Draft saved');

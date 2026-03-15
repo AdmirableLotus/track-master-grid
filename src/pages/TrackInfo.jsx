@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { db } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { Map, ChevronRight, Zap, Clock, RotateCcw, ArrowRight } from 'lucide-react';
 import TrackSVG from '@/components/pitwall/TrackSVG';
@@ -9,7 +9,7 @@ export default function TrackInfo() {
 
   const { data: races = [] } = useQuery({
     queryKey: ['races'],
-    queryFn: () => base44.entities.Race.list('round', 30),
+    queryFn: () => db.entities.Race.list('round', 30),
   });
 
   const selected = races.find(r => r.id === selectedId);

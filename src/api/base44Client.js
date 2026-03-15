@@ -1,4 +1,4 @@
-// Local data store replacing Base44 SDK — uses localStorage for persistence
+// Local data store — uses localStorage for persistence
 
 function store(key) {
   const load = () => JSON.parse(localStorage.getItem(key) || '[]');
@@ -20,10 +20,9 @@ function store(key) {
     },
     filter: (query) => {
       const items = load();
-      const result = items.filter(item =>
+      return Promise.resolve(items.filter(item =>
         Object.entries(query).every(([k, v]) => item[k] === v)
-      );
-      return Promise.resolve(result);
+      ));
     },
     create: (data) => {
       const items = load();
@@ -44,13 +43,13 @@ function store(key) {
   };
 }
 
-export const base44 = {
+export const db = {
   entities: {
-    Race: store('pitwall_races'),
+    Race:     store('pitwall_races'),
     Strategy: store('pitwall_strategies'),
-    League: store('pitwall_leagues'),
-  },
-  auth: {
-    me: () => Promise.resolve(JSON.parse(localStorage.getItem('pitwall_user') || 'null')),
+    League:   store('pitwall_leagues'),
   },
 };
+
+// Legacy alias — keeps existing imports working
+export const base44 = db;

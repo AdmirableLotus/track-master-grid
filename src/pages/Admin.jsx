@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import AdminRaces from '@/components/admin/AdminRaces';
@@ -10,7 +10,8 @@ export default function Admin() {
   const [user, setUser] = useState(null);
   const [tab, setTab] = useState('races');
 
-  useEffect(() => { base44.auth.me().then(setUser).catch(() => {}); }, []);
+  const { user } = useAuth();
+  useEffect(() => { setUser(user); }, [user]);
 
   if (user && user.role !== 'admin') {
     return (
