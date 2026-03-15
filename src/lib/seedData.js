@@ -1,4 +1,4 @@
-const SEED_VERSION = '3';
+const SEED_VERSION = '4';
 
 const SEED_RACES = [
   { id: 'r1',  round: 1,  name: 'Australian Grand Prix',      circuit: 'Albert Park Circuit',              country: 'Australia',   flag_emoji: '🇦🇺', date: '2026-03-15', lat: -37.8497, lon: 144.9680, laps: 58, lap_length_km: 5.278, pit_lane_time_loss: 24, drs_zones: 4, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Street-style circuit in Melbourne. Fast and flowing with a mix of high and low speed corners.', typical_strategy: 'One-stop. Medium to Hard most common. Safety car likely.' },
@@ -30,6 +30,9 @@ const SEED_RACES = [
 export function seedRaces() {
   const storedVersion = localStorage.getItem('pitwall_seed_version');
   if (storedVersion !== SEED_VERSION) {
+    // Clear all old race/strategy data on version change
+    localStorage.removeItem('pitwall_races');
+    localStorage.removeItem('pitwall_strategies');
     localStorage.setItem('pitwall_races', JSON.stringify(SEED_RACES));
     localStorage.setItem('pitwall_seed_version', SEED_VERSION);
   }
