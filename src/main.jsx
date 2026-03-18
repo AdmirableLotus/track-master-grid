@@ -4,7 +4,7 @@ import App from '@/App.jsx'
 import '@/index.css'
 import { seedRaces } from '@/lib/seedData'
 
-seedRaces()
+seedRaces(); // async, runs in background
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <App />

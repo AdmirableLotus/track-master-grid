@@ -22,9 +22,9 @@ export default function LoginPage({ initialMode = 'login', onBack }) {
         if (!form.username.trim()) throw new Error('Username is required.');
         if (!form.email.trim()) throw new Error('Email is required.');
         if (form.password.length < 6) throw new Error('Password must be at least 6 characters.');
-        register({ username: form.username.trim(), email: form.email.trim(), password: form.password });
+        await register({ username: form.username.trim(), email: form.email.trim(), password: form.password });
       } else {
-        login({ email: form.email.trim(), password: form.password });
+        await login({ email: form.email.trim(), password: form.password });
       }
       refreshSession();
     } catch (err) {

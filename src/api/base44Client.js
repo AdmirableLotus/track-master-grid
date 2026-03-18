@@ -1,60 +1,68 @@
-// Local data store — uses localStorage for persistence
+import { supabase } from './supabaseClient';
 
-function store(key) {
-  const load = () => JSON.parse(localStorage.getItem(key) || '[]');
-  const save = (data) => localStorage.setItem(key, JSON.stringify(data));
-
+function store(table) {
   return {
-    list: (sortField, limit = 100) => {
-      let items = load();
+    list: async (sortField, limit = 100) => {
+      let query = supabase.from(table).select('*').limit(limit);
       if (sortField) {
         const desc = sortField.startsWith('-');
         const field = desc ? sortField.slice(1) : sortField;
-        items = items.sort((a, b) => {
-          if (a[field] < b[field]) return desc ? 1 : -1;
-          if (a[field] > b[field]) return desc ? -1 : 1;
-          return 0;
-        });
+        query = query.order(field, { ascending: !desc });
       }
-      return Promise.resolve(items.slice(0, limit));
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
     },
-    filter: (query) => {
-      const items = load();
-      return Promise.resolve(items.filter(item =>
-        Object.entries(query).every(([k, v]) => item[k] === v)
-      ));
+
+    filter: async (filters) => {
+      let query = supabase.from(table).select('*');
+      Object.entries(filters).forEach(([k, v]) => {
+        query = query.eq(k, v);
+      });
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
     },
-    create: (data) => {
-      const items = load();
-      const newItem = { ...data, id: crypto.randomUUID(), created_date: new Date().toISOString() };
-      save([...items, newItem]);
-      return Promise.resolve(newItem);
+
+    create: async (data) => {
+      const { data: created, error } = await supabase
+        .from(table)
+        .insert(data)
+        .select()
+        .single();
+      if (error) throw error;
+      return created;
     },
-    update: (id, data) => {
-      const items = load();
-      const updated = items.map(i => i.id === id ? { ...i, ...data } : i);
-      save(updated);
-      return Promise.resolve(updated.find(i => i.id === id));
+
+    update: async (id, data) => {
+      const { data: updated, error } = await supabase
+        .from(table)
+        .update(data)
+        .eq('id', id)
+        .select()
+        .single();
+      if (error) throw error;
+      return updated;
     },
-    delete: (id) => {
-      save(load().filter(i => i.id !== id));
-      return Promise.resolve();
+
+    delete: async (id) => {
+      const { error } = await supabase.from(table).delete().eq('id', id);
+      if (error) throw error;
     },
   };
 }
 
 export const db = {
   entities: {
-    Race:        store('pitwall_races'),
-    Strategy:    store('pitwall_strategies'),
-    League:      store('pitwall_leagues'),
-    Challenge:   store('pitwall_challenges'),
-    Duel:        store('pitwall_duels'),
-    Profile:     store('pitwall_profiles'),
-    BanterPost:  store('pitwall_banter'),
-    ProStrategy: store('pitwall_pro_strategies'),
+    Race:        store('races'),
+    Strategy:    store('strategies'),
+    League:      store('leagues'),
+    Challenge:   store('challenges'),
+    Duel:        store('duels'),
+    Profile:     store('profiles'),
+    BanterPost:  store('banter_posts'),
+    ProStrategy: store('pro_strategies'),
   },
 };
 
-// Legacy alias — keeps existing imports working
 export const base44 = db;

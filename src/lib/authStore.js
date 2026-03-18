@@ -1,67 +1,44 @@
-const USERS_KEY = 'pitwall_users';
-const SESSION_KEY = 'pitwall_session';
+import { supabase } from '@/api/supabaseClient';
 
-function getUsers() {
-  return JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
-}
-
-function saveUsers(users) {
-  localStorage.setItem(USERS_KEY, JSON.stringify(users));
-}
-
-export function register({ username, email, password }) {
-  const users = getUsers();
-  if (users.find(u => u.email.toLowerCase() === email.toLowerCase())) {
-    throw new Error('An account with this email already exists.');
-  }
-  if (users.find(u => u.username.toLowerCase() === username.toLowerCase())) {
-    throw new Error('This username is already taken.');
-  }
-  const user = {
-    id: crypto.randomUUID(),
-    username,
+export async function register({ username, email, password }) {
+  const { data, error } = await supabase.auth.signUp({
     email,
-    password, // plain text — fine for a local demo app
-    full_name: username,
-    role: users.length === 0 ? 'admin' : 'user', // first user is admin
-    created_date: new Date().toISOString(),
-  };
-  saveUsers([...users, user]);
-  setSession(user);
-  return user;
+    password,
+    options: { data: { username, full_name: username } },
+  });
+  if (error) throw new Error(error.message);
+
+  // Create profile row
+  if (data.user) {
+    await supabase.from('profiles').upsert({
+      user_id: data.user.id,
+      username,
+    });
+  }
+  return data.user;
 }
 
-export function login({ email, password }) {
-  const users = getUsers();
-  const user = users.find(
-    u => u.email.toLowerCase() === email.toLowerCase() && u.password === password
-  );
-  if (!user) throw new Error('Invalid email or password.');
-  setSession(user);
-  return user;
+export async function login({ email, password }) {
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  if (error) throw new Error('Invalid email or password.');
+  return data.user;
 }
 
-export function loginAsGuest() {
-  const users = getUsers();
-  const guest = users.find(u => u.email === 'demo@pitwall.app');
-  if (!guest) throw new Error('Demo account not found. Please refresh the page.');
-  setSession(guest);
-  return guest;
+export async function loginAsGuest() {
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email: 'demo@pitwall.app',
+    password: 'demo1234',
+  });
+  if (error) throw new Error('Demo account not available.');
+  return data.user;
 }
 
-export function logout() {
-  localStorage.removeItem(SESSION_KEY);
-  // Also clear the old single-user key
-  localStorage.removeItem('pitwall_user');
+export async function logout() {
+  await supabase.auth.signOut();
 }
 
 export function getSession() {
-  const raw = localStorage.getItem(SESSION_KEY);
-  return raw ? JSON.parse(raw) : null;
-}
-
-function setSession(user) {
-  const { password: _, ...safe } = user;
-  localStorage.setItem(SESSION_KEY, JSON.stringify(safe));
-  localStorage.setItem('pitwall_user', JSON.stringify(safe));
+  // Supabase handles session persistence automatically
+  // This is kept for compatibility but AuthContext uses onAuthStateChange
+  return null;
 }

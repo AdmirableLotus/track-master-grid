@@ -1,7 +1,7 @@
-const SEED_VERSION = '6';
+import { supabase } from '@/api/supabaseClient';
 
 const SEED_RACES = [
-  { id: 'r1',  round: 1,  name: 'Australian Grand Prix',      circuit: 'Albert Park Circuit',              country: 'Australia',   flag_emoji: '🇦🇺', date: '2026-03-08', lat: -37.8497, lon: 144.9680, laps: 58, lap_length_km: 5.278, pit_lane_time_loss: 24, drs_zones: 4, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Street-style circuit in Melbourne. Fast and flowing with a mix of high and low speed corners.', typical_strategy: 'One-stop. Medium to Hard most common. Safety car likely.' },
+  { id: 'r1',  round: 1,  name: 'Australian Grand Prix',      circuit: 'Albert Park Circuit',              country: 'Australia',   flag_emoji: '🇦🇺', date: '2026-03-08', lat: -37.8497, lon: 144.9680, laps: 58, lap_length_km: 5.278, pit_lane_time_loss: 24, drs_zones: 4, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Street-style circuit in Melbourne. Fast and flowing with a mix of high and low speed corners.', typical_strategy: 'One-stop. Medium to Hard most common. Safety car likely.', actual_results: { winner: 'Max Verstappen', team: 'Red Bull Racing', starting_tire: 'medium', pit_laps: [18, 39], tire_sequence: ['hard'], total_pit_stops: 2, had_safety_car: true, race_completed: true } },
   { id: 'r2',  round: 2,  name: 'Chinese Grand Prix',          circuit: 'Shanghai International Circuit',   country: 'China',       flag_emoji: '🇨🇳', date: '2026-03-15', lat: 31.3389,  lon: 121.2198, laps: 56, lap_length_km: 5.451, pit_lane_time_loss: 28, drs_zones: 2, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Long back straight and a unique snail-shaped final sector. High tyre degradation.', typical_strategy: 'Two-stop. High deg favours early pit.' },
   { id: 'r3',  round: 3,  name: 'Japanese Grand Prix',         circuit: 'Suzuka Circuit',                   country: 'Japan',       flag_emoji: '🇯🇵', date: '2026-03-29', lat: 34.8431,  lon: 136.5407, laps: 53, lap_length_km: 5.807, pit_lane_time_loss: 26, drs_zones: 1, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Figure-of-eight layout with the iconic 130R and Spoon curve. Demands high downforce.', typical_strategy: 'One-stop. Hard tyre very durable here.' },
   { id: 'r4',  round: 4,  name: 'Bahrain Grand Prix',          circuit: 'Bahrain International Circuit',    country: 'Bahrain',     flag_emoji: '🇧🇭', date: '2026-05-02', lat: 26.0325,  lon: 50.5106,  laps: 57, lap_length_km: 5.412, pit_lane_time_loss: 29, drs_zones: 3, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Desert circuit with heavy tyre wear due to abrasive surface and high temperatures.', typical_strategy: 'Two-stop. Soft-Medium-Hard most common.' },
@@ -22,110 +22,16 @@ const SEED_RACES = [
   { id: 'r19', round: 19, name: 'United States Grand Prix',    circuit: 'Circuit of the Americas',          country: 'USA',         flag_emoji: '🇺🇸', date: '2026-10-18', lat: 30.1328,  lon: -97.6411, laps: 56, lap_length_km: 5.513, pit_lane_time_loss: 25, drs_zones: 2, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Purpose-built circuit with a dramatic uphill Turn 1. High-speed and technical.', typical_strategy: 'Two-stop. High tyre deg on abrasive surface.' },
   { id: 'r20', round: 20, name: 'Mexico City Grand Prix',      circuit: 'Autodromo Hermanos Rodriguez',     country: 'Mexico',      flag_emoji: '🇲🇽', date: '2026-10-25', lat: 19.4042,  lon: -99.0907, laps: 71, lap_length_km: 4.304, pit_lane_time_loss: 24, drs_zones: 3, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'High altitude reduces downforce and engine power. Low tyre deg but tricky braking zones.', typical_strategy: 'One-stop. Tyres last longer at altitude.' },
   { id: 'r21', round: 21, name: 'São Paulo Grand Prix',        circuit: 'Autodromo Jose Carlos Pace',       country: 'Brazil',      flag_emoji: '🇧🇷', date: '2026-11-08', lat: -23.7036, lon: -46.6997, laps: 71, lap_length_km: 4.309, pit_lane_time_loss: 27, drs_zones: 2, weather_forecast: 'mixed', available_compounds: ['soft','medium','hard'], track_description: 'Interlagos — anti-clockwise layout with heavy rain common. Passionate crowd.', typical_strategy: 'Two-stop. Rain can completely change the race.' },
-  { id: 'r22', round: 22, name: 'Las Vegas Grand Prix',        circuit: 'Las Vegas Strip Circuit',          country: 'USA',         flag_emoji: '🇺🇸', date: '2026-11-21', lat: 36.1147,  lon: -115.1728,laps: 50, lap_length_km: 6.201, pit_lane_time_loss: 28, drs_zones: 2, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Night race on the famous Strip. Cold temperatures affect tyre warm-up significantly.', typical_strategy: 'Two-stop. Cold track = slow tyre warm-up, soft compound risky.' },
+  { id: 'r22', round: 22, name: 'Las Vegas Grand Prix',        circuit: 'Las Vegas Strip Circuit',          country: 'USA',         flag_emoji: '🇺🇸', date: '2026-11-21', lat: 36.1147,  lon: -115.1728, laps: 50, lap_length_km: 6.201, pit_lane_time_loss: 28, drs_zones: 2, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Night race on the famous Strip. Cold temperatures affect tyre warm-up significantly.', typical_strategy: 'Two-stop. Cold track = slow tyre warm-up, soft compound risky.' },
   { id: 'r23', round: 23, name: 'Qatar Grand Prix',            circuit: 'Lusail International Circuit',     country: 'Qatar',       flag_emoji: '🇶🇦', date: '2026-11-29', lat: 25.4900,  lon: 51.4542,  laps: 57, lap_length_km: 5.380, pit_lane_time_loss: 25, drs_zones: 2, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'High-speed flowing circuit under floodlights. Extreme tyre degradation.', typical_strategy: 'Two or three-stop. Tyres degrade very fast.' },
   { id: 'r24', round: 24, name: 'Abu Dhabi Grand Prix',        circuit: 'Yas Marina Circuit',               country: 'UAE',         flag_emoji: '🇦🇪', date: '2026-12-06', lat: 24.4672,  lon: 54.6031,  laps: 58, lap_length_km: 5.281, pit_lane_time_loss: 26, drs_zones: 2, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Season finale. Twilight race transitioning from day to night. Low tyre deg.', typical_strategy: 'One-stop. Track position key in the final sector.' },
 ];
 
-const DEMO_USER_ID = 'demo-user-001';
-const DEMO_USER_2_ID = 'demo-user-002';
-const DEMO_USER_3_ID = 'demo-user-003';
+export async function seedRaces() {
+  const { data: existing } = await supabase.from('races').select('id').limit(1);
+  if (existing && existing.length > 0) return; // already seeded
 
-const COMPLETED_RACE_ID = 'r1'; // Australian GP — already past
-
-const DEMO_ACTUAL_RESULTS = {
-  winner: 'Max Verstappen',
-  team: 'Red Bull Racing',
-  starting_tire: 'medium',
-  pit_laps: [18, 39],
-  tire_sequence: ['hard'],
-  total_pit_stops: 2,
-  had_safety_car: true,
-  race_completed: true,
-};
-
-const DEMO_STRATEGIES = [
-  {
-    id: 'demo-strat-001',
-    user_id: DEMO_USER_ID,
-    username: 'GridMaster',
-    race_id: COMPLETED_RACE_ID,
-    submitted: true,
-    starting_tire: 'medium',
-    pit_stop_1_lap: 19,
-    pit_stop_1_tire: 'hard',
-    pit_stop_2_lap: 40,
-    pit_stop_2_tire: null,
-    pit_stop_3_lap: null,
-    pit_stop_3_tire: null,
-    safety_car_response: 'pit',
-    score: 55,
-  },
-  {
-    id: 'demo-strat-002',
-    user_id: DEMO_USER_2_ID,
-    username: 'TifosiFan',
-    race_id: COMPLETED_RACE_ID,
-    submitted: true,
-    starting_tire: 'soft',
-    pit_stop_1_lap: 14,
-    pit_stop_1_tire: 'medium',
-    pit_stop_2_lap: 38,
-    pit_stop_2_tire: 'hard',
-    pit_stop_3_lap: null,
-    pit_stop_3_tire: null,
-    safety_car_response: 'stay',
-    score: 30,
-  },
-  {
-    id: 'demo-strat-003',
-    user_id: DEMO_USER_3_ID,
-    username: 'UndercutKing',
-    race_id: COMPLETED_RACE_ID,
-    submitted: true,
-    starting_tire: 'medium',
-    pit_stop_1_lap: 20,
-    pit_stop_1_tire: 'hard',
-    pit_stop_2_lap: null,
-    pit_stop_2_tire: null,
-    pit_stop_3_lap: null,
-    pit_stop_3_tire: null,
-    safety_car_response: 'pit',
-    score: 40,
-  },
-];
-
-const DEMO_USERS = [
-  { id: DEMO_USER_ID,   username: 'GridMaster',   email: 'demo@pitwall.app',  password: 'demo1234', full_name: 'GridMaster',   role: 'user' },
-  { id: DEMO_USER_2_ID, username: 'TifosiFan',    email: 'tifosi@pitwall.app', password: 'demo1234', full_name: 'TifosiFan',    role: 'user' },
-  { id: DEMO_USER_3_ID, username: 'UndercutKing', email: 'undercut@pitwall.app', password: 'demo1234', full_name: 'UndercutKing', role: 'user' },
-];
-
-export function seedRaces() {
-  const storedVersion = localStorage.getItem('pitwall_seed_version');
-  if (storedVersion !== SEED_VERSION) {
-    localStorage.removeItem('pitwall_races');
-    localStorage.removeItem('pitwall_strategies');
-
-    // Seed races — mark Australian GP as completed with results
-    const races = SEED_RACES.map(r =>
-      r.id === COMPLETED_RACE_ID ? { ...r, actual_results: DEMO_ACTUAL_RESULTS } : r
-    );
-    localStorage.setItem('pitwall_races', JSON.stringify(races));
-
-    // Seed demo strategies
-    const existing = JSON.parse(localStorage.getItem('pitwall_strategies') || '[]');
-    const withoutDemo = existing.filter(s => !DEMO_STRATEGIES.find(d => d.id === s.id));
-    localStorage.setItem('pitwall_strategies', JSON.stringify([...withoutDemo, ...DEMO_STRATEGIES]));
-
-    // Seed demo users (don't overwrite real users)
-    const users = JSON.parse(localStorage.getItem('pitwall_users') || '[]');
-    const merged = [...users];
-    DEMO_USERS.forEach(du => {
-      if (!merged.find(u => u.id === du.id)) merged.push(du);
-    });
-    localStorage.setItem('pitwall_users', JSON.stringify(merged));
-
-    localStorage.setItem('pitwall_seed_version', SEED_VERSION);
-  }
+  const { error } = await supabase.from('races').upsert(SEED_RACES, { onConflict: 'id' });
+  if (error) console.error('Seed error:', error.message);
+  else console.log('Races seeded to Supabase ✅');
 }
