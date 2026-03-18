@@ -27,12 +27,15 @@ function SpeedLines() {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {[...Array(20)].map((_, i) => (
-        <div key={i} className="absolute h-px"
+        <div key={i} className="absolute"
           style={{
             top: `${3 + i * 4.8}%`,
             left: '-120%',
-            width: `${30 + (i % 4) * 20}%`,
-            background: `linear-gradient(90deg, transparent, ${i % 3 === 0 ? '#e10600' : '#ffffff'}18, transparent)`,
+            height: i % 4 === 0 ? '2px' : '1px',
+            width: `${40 + (i % 4) * 20}%`,
+            background: i % 3 === 0
+              ? `linear-gradient(90deg, transparent, #e10600cc, transparent)`
+              : `linear-gradient(90deg, transparent, #ffffff55, transparent)`,
             animation: `speedline ${2 + (i % 6) * 0.35}s linear infinite`,
             animationDelay: `${(i * 0.25) % 3}s`,
           }}
@@ -138,12 +141,12 @@ export default function LandingPage({ onSignIn, onRegister, onGuest }) {
       {/* ── HERO ── */}
       <div className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden px-4">
         <div className="absolute inset-0"
-          style={{ backgroundImage: 'linear-gradient(rgba(225,6,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(225,6,0,0.04) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+          style={{ backgroundImage: 'linear-gradient(rgba(225,6,0,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(225,6,0,0.08) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
         <SpeedLines />
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse, rgba(225,6,0,0.12) 0%, transparent 65%)' }} />
-        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] pointer-events-none"
-          style={{ background: 'radial-gradient(circle at 0 100%, rgba(225,6,0,0.08) 0%, transparent 60%)' }} />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[700px] h-[500px] pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse, rgba(225,6,0,0.22) 0%, transparent 65%)' }} />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none"
+          style={{ background: 'radial-gradient(circle at 0 100%, rgba(225,6,0,0.15) 0%, transparent 60%)' }} />
 
         <div className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-6 opacity-60">
           <TireCompound color="#e10600" label="SOFT" delay="0.8s" />
