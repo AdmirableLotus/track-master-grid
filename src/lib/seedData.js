@@ -1,4 +1,4 @@
-const SEED_VERSION = '5';
+const SEED_VERSION = '6';
 
 const SEED_RACES = [
   { id: 'r1',  round: 1,  name: 'Australian Grand Prix',      circuit: 'Albert Park Circuit',              country: 'Australia',   flag_emoji: '🇦🇺', date: '2026-03-08', lat: -37.8497, lon: 144.9680, laps: 58, lap_length_km: 5.278, pit_lane_time_loss: 24, drs_zones: 4, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Street-style circuit in Melbourne. Fast and flowing with a mix of high and low speed corners.', typical_strategy: 'One-stop. Medium to Hard most common. Safety car likely.' },
@@ -27,13 +27,105 @@ const SEED_RACES = [
   { id: 'r24', round: 24, name: 'Abu Dhabi Grand Prix',        circuit: 'Yas Marina Circuit',               country: 'UAE',         flag_emoji: '🇦🇪', date: '2026-12-06', lat: 24.4672,  lon: 54.6031,  laps: 58, lap_length_km: 5.281, pit_lane_time_loss: 26, drs_zones: 2, weather_forecast: 'dry',   available_compounds: ['soft','medium','hard'], track_description: 'Season finale. Twilight race transitioning from day to night. Low tyre deg.', typical_strategy: 'One-stop. Track position key in the final sector.' },
 ];
 
+const DEMO_USER_ID = 'demo-user-001';
+const DEMO_USER_2_ID = 'demo-user-002';
+const DEMO_USER_3_ID = 'demo-user-003';
+
+const COMPLETED_RACE_ID = 'r1'; // Australian GP — already past
+
+const DEMO_ACTUAL_RESULTS = {
+  winner: 'Max Verstappen',
+  team: 'Red Bull Racing',
+  starting_tire: 'medium',
+  pit_laps: [18, 39],
+  tire_sequence: ['hard'],
+  total_pit_stops: 2,
+  had_safety_car: true,
+  race_completed: true,
+};
+
+const DEMO_STRATEGIES = [
+  {
+    id: 'demo-strat-001',
+    user_id: DEMO_USER_ID,
+    username: 'GridMaster',
+    race_id: COMPLETED_RACE_ID,
+    submitted: true,
+    starting_tire: 'medium',
+    pit_stop_1_lap: 19,
+    pit_stop_1_tire: 'hard',
+    pit_stop_2_lap: 40,
+    pit_stop_2_tire: null,
+    pit_stop_3_lap: null,
+    pit_stop_3_tire: null,
+    safety_car_response: 'pit',
+    score: 55,
+  },
+  {
+    id: 'demo-strat-002',
+    user_id: DEMO_USER_2_ID,
+    username: 'TifosiFan',
+    race_id: COMPLETED_RACE_ID,
+    submitted: true,
+    starting_tire: 'soft',
+    pit_stop_1_lap: 14,
+    pit_stop_1_tire: 'medium',
+    pit_stop_2_lap: 38,
+    pit_stop_2_tire: 'hard',
+    pit_stop_3_lap: null,
+    pit_stop_3_tire: null,
+    safety_car_response: 'stay',
+    score: 30,
+  },
+  {
+    id: 'demo-strat-003',
+    user_id: DEMO_USER_3_ID,
+    username: 'UndercutKing',
+    race_id: COMPLETED_RACE_ID,
+    submitted: true,
+    starting_tire: 'medium',
+    pit_stop_1_lap: 20,
+    pit_stop_1_tire: 'hard',
+    pit_stop_2_lap: null,
+    pit_stop_2_tire: null,
+    pit_stop_3_lap: null,
+    pit_stop_3_tire: null,
+    safety_car_response: 'pit',
+    score: 40,
+  },
+];
+
+const DEMO_USERS = [
+  { id: DEMO_USER_ID,   username: 'GridMaster',   email: 'demo@pitwall.app',  password: 'demo1234', full_name: 'GridMaster',   role: 'user' },
+  { id: DEMO_USER_2_ID, username: 'TifosiFan',    email: 'tifosi@pitwall.app', password: 'demo1234', full_name: 'TifosiFan',    role: 'user' },
+  { id: DEMO_USER_3_ID, username: 'UndercutKing', email: 'undercut@pitwall.app', password: 'demo1234', full_name: 'UndercutKing', role: 'user' },
+];
+
 export function seedRaces() {
   const storedVersion = localStorage.getItem('pitwall_seed_version');
   if (storedVersion !== SEED_VERSION) {
-    // Clear all old race/strategy data on version change
     localStorage.removeItem('pitwall_races');
     localStorage.removeItem('pitwall_strategies');
-    localStorage.setItem('pitwall_races', JSON.stringify(SEED_RACES));
+
+    // Seed races — mark Australian GP as completed with results
+    const races = SEED_RACES.map(r =>
+      r.id === COMPLETED_RACE_ID ? { ...r, actual_results: DEMO_ACTUAL_RESULTS } : r
+    );
+    localStorage.setItem('pitwall_races', JSON.stringify(races));
+
+    // Seed demo strategies
+    const existing = JSON.parse(localStorage.getItem('pitwall_strategies') || '[]');
+    const withoutDemo = existing.filter(s => !DEMO_STRATEGIES.find(d => d.id === s.id));
+    localStorage.setItem('pitwall_strategies', JSON.stringify([...withoutDemo, ...DEMO_STRATEGIES]));
+
+    // Seed demo users (don't overwrite real users)
+    const users = JSON.parse(localStorage.getItem('pitwall_users') || '[]');
+    const merged = [...users];
+    DEMO_USERS.forEach(du => {
+      if (!merged.find(u => u.id === du.id)) merged.push(du);
+    });
+    localStorage.setItem('pitwall_users', JSON.stringify(merged));
+
     localStorage.setItem('pitwall_seed_version', SEED_VERSION);
   }
 }

@@ -1,14 +1,13 @@
 import { Outlet, NavLink } from 'react-router-dom';
-import { Home, Trophy, BarChart2, Users, LogOut, Swords, Zap } from 'lucide-react';
+import { Home, Trophy, BarChart2, Users, LogOut, Swords, Zap, User } from 'lucide-react';
 import { useAuth } from '@/lib/AuthContext';
 
 const navItems = [
   { to: '/Home',            icon: Home,     label: 'Home'       },
   { to: '/StrategyBuilder', icon: BarChart2, label: 'Strategy'   },
-  { to: '/Challenges',      icon: Zap,      label: 'Challenges' },
-  { to: '/Duels',           icon: Swords,   label: 'Duels'      },
   { to: '/Leaderboard',     icon: Trophy,   label: 'Standings'  },
   { to: '/Leagues',         icon: Users,    label: 'Leagues'    },
+  { to: '/Profile',         icon: User,     label: 'Profile'    },
 ];
 
 export default function AppLayout() {
@@ -23,6 +22,9 @@ export default function AppLayout() {
         <span className="text-lg font-black tracking-widest text-white">PITWALL</span>
         <span className="text-lg font-black tracking-widest text-[#e10600]">STRATEGIST</span>
         <div className="ml-auto flex items-center gap-3">
+          {user?.email === 'demo@pitwall.app' && (
+            <span className="text-[9px] font-black tracking-widest px-2 py-1 rounded-full bg-[#e10600]/10 border border-[#e10600]/30 text-[#e10600]">DEMO</span>
+          )}
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-full bg-[#e10600]/20 border border-[#e10600]/40 flex items-center justify-center">
               <span className="text-[10px] font-black text-[#e10600]">{user?.username?.[0]?.toUpperCase() ?? 'U'}</span>

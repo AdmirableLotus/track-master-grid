@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { BarChart2, Map, Trophy, Users, Flag, Zap, ChevronRight, Timer } from 'lucide-react';
+import { BarChart2, Map, Trophy, Users, Flag, Zap, ChevronRight, Timer, Play } from 'lucide-react';
 
 const FEATURES = [
   { icon: BarChart2, title: 'Strategy Builder', desc: 'Plan pit stops, tire compounds and risk levels like a real race engineer.' },
@@ -15,6 +15,12 @@ const TAGLINES = [
   'PREDICT. STRATEGIZE. DOMINATE.',
   'YOUR PITWALL. YOUR CALL.',
   'EVERY LAP. EVERY DECISION.',
+];
+
+const HOW_TO_PLAY = [
+  { step: '01', title: 'Pick a Race', desc: 'Choose an upcoming Grand Prix from the 2026 F1 calendar.' },
+  { step: '02', title: 'Submit Your Strategy', desc: "Pick your starting tire, pit stop laps, and how you'd handle a safety car." },
+  { step: '03', title: 'Score Points', desc: 'After race day, your strategy is compared to the actual winner. Climb the leaderboard!' },
 ];
 
 function SpeedLines() {
@@ -49,7 +55,7 @@ function TireCompound({ color, label, delay }) {
   );
 }
 
-export default function LandingPage({ onSignIn, onRegister }) {
+export default function LandingPage({ onSignIn, onRegister, onGuest }) {
   const [taglineIdx, setTaglineIdx] = useState(0);
   const [visible, setVisible] = useState(true);
   const [heroReady, setHeroReady] = useState(false);
@@ -86,9 +92,6 @@ export default function LandingPage({ onSignIn, onRegister }) {
           from { opacity: 0; transform: translateY(-30px); }
           to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes revealWidth {
-          from { width: 0; } to { width: 100%; }
-        }
         @keyframes pulse-glow {
           0%,100% { box-shadow: 0 0 20px rgba(225,6,0,0.4); }
           50%      { box-shadow: 0 0 50px rgba(225,6,0,0.8); }
@@ -115,7 +118,11 @@ export default function LandingPage({ onSignIn, onRegister }) {
           <span className="font-black text-white tracking-widest text-sm">PITWALL</span>
           <span className="font-black text-[#e10600] tracking-widest text-sm">STRATEGIST</span>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-2">
+          <button onClick={onGuest}
+            className="text-xs font-black text-[#e10600] px-3 py-2 rounded-lg border border-[#e10600]/40 hover:bg-[#e10600]/10 transition-all tracking-widest flex items-center gap-1">
+            <Play className="w-3 h-3" /> DEMO
+          </button>
           <button onClick={onSignIn}
             className="text-xs font-black text-gray-300 hover:text-white px-4 py-2 rounded-lg border border-[#2a2a2a] hover:border-[#444] transition-all tracking-widest">
             SIGN IN
@@ -130,36 +137,27 @@ export default function LandingPage({ onSignIn, onRegister }) {
 
       {/* ── HERO ── */}
       <div className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden px-4">
-        {/* Grid bg */}
         <div className="absolute inset-0"
           style={{ backgroundImage: 'linear-gradient(rgba(225,6,0,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(225,6,0,0.04) 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
-
-        {/* Speed lines */}
         <SpeedLines />
-
-        {/* Red glow orbs */}
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] pointer-events-none"
           style={{ background: 'radial-gradient(ellipse, rgba(225,6,0,0.12) 0%, transparent 65%)' }} />
         <div className="absolute bottom-0 left-0 w-[300px] h-[300px] pointer-events-none"
           style={{ background: 'radial-gradient(circle at 0 100%, rgba(225,6,0,0.08) 0%, transparent 60%)' }} />
 
-        {/* Tire compounds decoration */}
         <div className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-6 opacity-60">
           <TireCompound color="#e10600" label="SOFT" delay="0.8s" />
           <TireCompound color="#ffd700" label="MED" delay="1.0s" />
           <TireCompound color="#cccccc" label="HARD" delay="1.2s" />
         </div>
 
-        {/* Main content */}
         <div className="relative z-10 text-center max-w-2xl mx-auto">
-          {/* Badge */}
           <div className="inline-flex items-center gap-2 bg-[#e10600]/10 border border-[#e10600]/30 rounded-full px-4 py-1.5 mb-6"
             style={{ animation: heroReady ? 'fadeUp 0.6s ease forwards' : 'none', opacity: heroReady ? undefined : 0 }}>
             <div className="w-1.5 h-1.5 rounded-full bg-[#e10600] animate-pulse" />
             <span className="text-[10px] font-black text-[#e10600] tracking-[0.3em]">2026 F1 SEASON LIVE</span>
           </div>
 
-          {/* Main title */}
           <h1 className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tight mb-2"
             style={{ animation: heroReady ? 'fadeUp 0.7s ease 0.1s forwards' : 'none', opacity: 0,
               textShadow: '0 0 80px rgba(225,6,0,0.3)' }}>
@@ -171,14 +169,12 @@ export default function LandingPage({ onSignIn, onRegister }) {
             STRATEGIST
           </h1>
 
-          {/* Animated tagline */}
           <div className="h-8 flex items-center justify-center mb-8">
             <p className={`text-sm sm:text-base font-black tracking-[0.2em] text-gray-300 transition-opacity duration-400 ${visible ? 'opacity-100' : 'opacity-0'}`}>
               {TAGLINES[taglineIdx]}
             </p>
           </div>
 
-          {/* Red divider */}
           <div className="flex items-center justify-center gap-3 mb-8"
             style={{ animation: heroReady ? 'fadeUp 0.6s ease 0.4s forwards' : 'none', opacity: 0 }}>
             <div className="h-px bg-gradient-to-r from-transparent to-[#e10600] w-16" />
@@ -186,7 +182,6 @@ export default function LandingPage({ onSignIn, onRegister }) {
             <div className="h-px bg-gradient-to-l from-transparent to-[#e10600] w-16" />
           </div>
 
-          {/* CTA buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center"
             style={{ animation: heroReady ? 'fadeUp 0.6s ease 0.5s forwards' : 'none', opacity: 0 }}>
             <button onClick={onRegister}
@@ -200,10 +195,13 @@ export default function LandingPage({ onSignIn, onRegister }) {
               className="flex items-center justify-center gap-2 bg-transparent hover:bg-white/5 text-white font-black px-8 py-4 rounded-xl text-sm tracking-widest border border-[#333] hover:border-[#555] transition-all">
               SIGN IN
             </button>
+            <button onClick={onGuest}
+              className="flex items-center justify-center gap-2 bg-transparent hover:bg-[#e10600]/10 text-[#e10600] font-black px-8 py-4 rounded-xl text-sm tracking-widest border border-[#e10600]/30 hover:border-[#e10600]/60 transition-all">
+              <Play className="w-4 h-4" /> TRY DEMO
+            </button>
           </div>
         </div>
 
-        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40"
           style={{ animation: 'fadeIn 1s ease 1.5s forwards', opacity: 0 }}>
           <span className="text-[9px] text-gray-500 font-black tracking-widest">SCROLL</span>
@@ -211,8 +209,37 @@ export default function LandingPage({ onSignIn, onRegister }) {
         </div>
       </div>
 
-      {/* ── FEATURES ── */}
       <div className="px-4 py-16 max-w-2xl mx-auto">
+
+        {/* ── HOW TO PLAY ── */}
+        <div className="mb-16">
+          <div className="text-center mb-8">
+            <p className="text-[10px] font-black text-[#e10600] tracking-[0.3em] mb-2">HOW IT WORKS</p>
+            <h2 className="text-2xl font-black text-white">Three Steps to the Podium</h2>
+          </div>
+          <div className="flex flex-col gap-4">
+            {HOW_TO_PLAY.map(({ step, title, desc }, i) => (
+              <div key={step} className="flex items-start gap-5 bg-[#111] border border-[#1e1e1e] rounded-xl p-5"
+                style={{ animation: `fadeUp 0.5s ease ${i * 0.1}s forwards`, opacity: 0 }}>
+                <div className="shrink-0 w-12 h-12 rounded-xl bg-[#e10600]/10 border border-[#e10600]/30 flex items-center justify-center">
+                  <span className="text-lg font-black text-[#e10600]">{step}</span>
+                </div>
+                <div>
+                  <p className="font-black text-white mb-1">{title}</p>
+                  <p className="text-sm text-gray-500 leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <button onClick={onGuest}
+              className="inline-flex items-center gap-2 bg-[#e10600]/10 hover:bg-[#e10600]/20 border border-[#e10600]/30 text-[#e10600] font-black px-6 py-3 rounded-xl text-sm tracking-widest transition-all">
+              <Play className="w-4 h-4" /> SEE IT IN ACTION — TRY DEMO
+            </button>
+          </div>
+        </div>
+
+        {/* ── FEATURES ── */}
         <div className="text-center mb-10">
           <p className="text-[10px] font-black text-[#e10600] tracking-[0.3em] mb-2">WHAT YOU GET</p>
           <h2 className="text-2xl font-black text-white">Race Intelligence. All in One Place.</h2>
@@ -240,11 +267,17 @@ export default function LandingPage({ onSignIn, onRegister }) {
             <p className="text-[10px] font-black text-[#e10600] tracking-[0.3em] mb-3">FREE TO PLAY</p>
             <h3 className="text-2xl font-black text-white mb-2">Ready to Engineer Victory?</h3>
             <p className="text-gray-500 text-sm mb-6">Join the pitwall. Outsmart the competition.</p>
-            <button onClick={onRegister}
-              className="bg-[#e10600] hover:bg-[#c10500] text-white font-black px-10 py-4 rounded-xl text-sm tracking-widest transition-all inline-flex items-center gap-2"
-              style={{ boxShadow: '0 4px 30px rgba(225,6,0,0.4)' }}>
-              <Zap className="w-4 h-4" /> GET STARTED FREE
-            </button>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <button onClick={onRegister}
+                className="bg-[#e10600] hover:bg-[#c10500] text-white font-black px-10 py-4 rounded-xl text-sm tracking-widest transition-all inline-flex items-center justify-center gap-2"
+                style={{ boxShadow: '0 4px 30px rgba(225,6,0,0.4)' }}>
+                <Zap className="w-4 h-4" /> GET STARTED FREE
+              </button>
+              <button onClick={onGuest}
+                className="bg-transparent hover:bg-[#e10600]/10 border border-[#e10600]/30 text-[#e10600] font-black px-10 py-4 rounded-xl text-sm tracking-widest transition-all inline-flex items-center justify-center gap-2">
+                <Play className="w-4 h-4" /> TRY DEMO FIRST
+              </button>
+            </div>
           </div>
         </div>
       </div>

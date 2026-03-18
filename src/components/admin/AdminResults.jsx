@@ -4,6 +4,32 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { Save, CheckCircle } from 'lucide-react';
 
+function calcScore(strategy, actual) {
+  let score = 0;
+  if (!actual) return score;
+  if (strategy.starting_tire === actual.starting_tire) score += 10;
+  const userStops = [strategy.pit_stop_1_lap, strategy.pit_stop_2_lap, strategy.pit_stop_3_lap].filter(Boolean).length;
+  if (userStops === actual.total_pit_stops) score += 10;
+  const userLaps = [strategy.pit_stop_1_lap, strategy.pit_stop_2_lap, strategy.pit_stop_3_lap].filter(Boolean);
+  let pitPoints = 0;
+  (actual.pit_laps || []).forEach(actualLap => {
+    const closest = Math.min(...userLaps.map(l => Math.abs(l - actualLap)));
+    if (closest <= 2) pitPoints += 20;
+    else if (closest <= 5) pitPoints += 10;
+  });
+  score += Math.min(pitPoints, 20);
+  const userTires = [strategy.pit_stop_1_tire, strategy.pit_stop_2_tire, strategy.pit_stop_3_tire].filter(Boolean);
+  const actualTires = actual.tire_sequence || [];
+  let tireMatches = 0;
+  actualTires.forEach((t, i) => { if (userTires[i] === t) tireMatches++; });
+  if (tireMatches > 0) score += Math.floor((tireMatches / Math.max(actualTires.length, 1)) * 15);
+  if (actual.had_safety_car !== undefined && strategy.safety_car_response !== 'none') {
+    if (actual.had_safety_car && strategy.safety_car_response === 'pit') score += 5;
+    else if (!actual.had_safety_car && strategy.safety_car_response === 'stay') score += 5;
+  }
+  return score;
+}
+
 const TIRE_OPTS = ['soft', 'medium', 'hard'];
 
 export default function AdminResults() {
@@ -44,7 +70,7 @@ export default function AdminResults() {
   };
 
   const saveMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const actual_results = {
         winner: results.winner,
         team: results.team,
@@ -55,11 +81,18 @@ export default function AdminResults() {
         had_safety_car: results.had_safety_car,
         race_completed: results.race_completed,
       };
-      return db.entities.Race.update(selectedRaceId, { actual_results });
+      await db.entities.Race.update(selectedRaceId, { actual_results });
+      if (actual_results.race_completed) {
+        const strategies = await db.entities.Strategy.filter({ race_id: selectedRaceId });
+        await Promise.all(
+          strategies.map(s => db.entities.Strategy.update(s.id, { score: calcScore(s, actual_results) }))
+        );
+      }
     },
     onSuccess: () => {
-      toast.success('Results saved! Strategies will now be scored.');
+      toast.success('Results saved and strategies scored!');
       qc.invalidateQueries(['races']);
+      qc.invalidateQueries(['all-strategies']);
     },
   });
 

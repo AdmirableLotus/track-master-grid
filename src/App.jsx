@@ -16,13 +16,23 @@ import Leagues from '@/pages/Leagues';
 import DriverComparison from '@/pages/DriverComparison';
 import Challenges from '@/pages/Challenges';
 import Duels from '@/pages/Duels';
+import Profile from '@/pages/Profile';
 import Login from '@/pages/Login';
 import Landing from '@/pages/Landing';
 
+import { loginAsGuest } from '@/lib/authStore';
+
 function UnauthFlow() {
+  const { refreshSession } = useAuth();
   const [screen, setScreen] = useState('landing');
+
+  const handleGuest = () => {
+    loginAsGuest();
+    refreshSession();
+  };
+
   if (screen === 'landing') {
-    return <Landing onSignIn={() => setScreen('login')} onRegister={() => setScreen('register')} />;
+    return <Landing onSignIn={() => setScreen('login')} onRegister={() => setScreen('register')} onGuest={handleGuest} />;
   }
   return <Login initialMode={screen === 'register' ? 'register' : 'login'} onBack={() => setScreen('landing')} />;
 }
@@ -43,6 +53,7 @@ function AppRoutes() {
         <Route path="/Compare" element={<DriverComparison />} />
         <Route path="/Challenges" element={<Challenges />} />
         <Route path="/Duels" element={<Duels />} />
+        <Route path="/Profile" element={<Profile />} />
       </Route>
       <Route path="/Admin" element={<Admin />} />
       <Route path="*" element={<PageNotFound />} />

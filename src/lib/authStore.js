@@ -41,6 +41,14 @@ export function login({ email, password }) {
   return user;
 }
 
+export function loginAsGuest() {
+  const users = getUsers();
+  const guest = users.find(u => u.email === 'demo@pitwall.app');
+  if (!guest) throw new Error('Demo account not found. Please refresh the page.');
+  setSession(guest);
+  return guest;
+}
+
 export function logout() {
   localStorage.removeItem(SESSION_KEY);
   // Also clear the old single-user key
